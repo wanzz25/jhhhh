@@ -1,0 +1,320 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Siswa Kelas 9 - Portal Belajar Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+
+        @keyframes pulse-custom {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .timer-active {
+            animation: pulse-custom 2s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="bg-indigo-600 p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-slate-800">Ruang Siswa <span class="text-indigo-600">Kelas 9</span></h1>
+        </div>
+        <div id="current-date" class="text-sm font-medium text-slate-500 hidden md:block"></div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Tasks & Timer -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <!-- Pomodoro Timer -->
+            <div class="glass-card rounded-2xl p-6 shadow-sm border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-bold text-slate-800 uppercase tracking-wider text-xs">Fokus Belajar (Pomodoro)</h2>
+                    <span id="timer-status" class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-[10px] font-bold">READY</span>
+                </div>
+                <div class="text-center py-4">
+                    <div id="timer-display" class="text-5xl font-bold text-slate-800 mb-6">25:00</div>
+                    <div class="flex gap-2 justify-center">
+                        <button onclick="toggleTimer()" id="btn-timer" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-semibold transition-all">Mulai</button>
+                        <button onclick="resetTimer()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2 rounded-xl font-semibold transition-all">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div class="glass-card rounded-2xl p-6 shadow-sm">
+                <h2 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    Jadwal Belajar Hari Ini
+                </h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="task-input" placeholder="Tambah tugas..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button onclick="addTask()" class="bg-indigo-600 text-white p-2 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <ul id="task-list" class="space-y-3">
+                    <!-- Tasks injected here -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Column: Curriculum Tracker & Formula -->
+        <div class="lg:col-span-8 space-y-6">
+            
+            <!-- Study Progress -->
+            <div class="glass-card rounded-2xl p-6 shadow-sm">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Materi Kelas 9 (Semester 1 & 2)</h2>
+                        <p class="text-sm text-slate-500">Pantau progres penguasaan materi kamu.</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="total-progress-percent" class="text-2xl font-bold text-indigo-600">0%</span>
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">Selesai</div>
+                    </div>
+                </div>
+                
+                <div class="w-full bg-slate-100 rounded-full h-2 mb-8">
+                    <div id="progress-bar" class="bg-indigo-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="curriculum-container">
+                    <!-- Curriculum items injected here -->
+                </div>
+            </div>
+
+            <!-- Quick Formulas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Math Card -->
+                <div class="bg-orange-50 border border-orange-100 rounded-2xl p-6">
+                    <h3 class="font-bold text-orange-800 mb-4 flex items-center gap-2">
+                        📐 Rumus Matematika (Favorit)
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="bg-white p-3 rounded-xl border border-orange-200">
+                            <p class="text-xs text-orange-600 font-bold uppercase mb-1">Persamaan Kuadrat</p>
+                            <code class="text-sm font-mono font-bold">x = (-b ± √(b² - 4ac)) / 2a</code>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-orange-200">
+                            <p class="text-xs text-orange-600 font-bold uppercase mb-1">Volume Kerucut</p>
+                            <code class="text-sm font-mono font-bold">V = 1/3 × π × r² × t</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Science Card -->
+                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
+                    <h3 class="font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                        🧪 Konsep IPA
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="bg-white p-3 rounded-xl border border-emerald-200">
+                            <p class="text-xs text-emerald-600 font-bold uppercase mb-1">Hukum Ohm (Listrik)</p>
+                            <code class="text-sm font-mono font-bold text-slate-700">V = I × R</code>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-emerald-200">
+                            <p class="text-xs text-emerald-600 font-bold uppercase mb-1">Transformator</p>
+                            <code class="text-sm font-mono font-bold text-slate-700">Vp / Vs = Np / Ns</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Message Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-medium opacity-0 transition-opacity pointer-events-none">
+        Tugas berhasil diselesaikan! 🎉
+    </div>
+
+    <script>
+        // Data Materi Kelas 9
+        const curriculum = [
+            { id: 1, subject: 'Matematika', topic: 'Perpangkatan & Bentuk Akar', checked: false },
+            { id: 2, subject: 'Matematika', topic: 'Persamaan & Fungsi Kuadrat', checked: false },
+            { id: 3, subject: 'IPA', topic: 'Sistem Reproduksi Manusia', checked: false },
+            { id: 4, subject: 'IPA', topic: 'Listrik Statis & Dinamis', checked: false },
+            { id: 5, subject: 'B. Indonesia', topic: 'Teks Laporan Percobaan', checked: false },
+            { id: 6, subject: 'B. Inggris', topic: 'Report Text', checked: false },
+            { id: 7, subject: 'IPS', topic: 'Interaksi Antarnegara Asia', checked: false },
+            { id: 8, subject: 'Matematika', topic: 'Kesebangunan & Kekongruenan', checked: false }
+        ];
+
+        // State
+        let tasks = JSON.parse(localStorage.getItem('siswa9_tasks')) || [
+            { id: 1, text: 'Latihan soal UN Matematika', done: false },
+            { id: 2, text: 'Baca rangkuman Biologi Bab 2', done: false }
+        ];
+        
+        let timerSeconds = 25 * 60;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        // Initialize
+        window.onload = () => {
+            renderCurriculum();
+            renderTasks();
+            updateDate();
+            updateProgress();
+        };
+
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', options);
+        }
+
+        // --- Timer Functions ---
+        function toggleTimer() {
+            const btn = document.getElementById('btn-timer');
+            const display = document.getElementById('timer-display');
+            const status = document.getElementById('timer-status');
+
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                btn.innerText = 'Lanjut';
+                status.innerText = 'PAUSED';
+                status.className = "px-2 py-1 bg-orange-100 text-orange-700 rounded text-[10px] font-bold";
+                display.classList.remove('timer-active');
+            } else {
+                status.innerText = 'FOCUSING';
+                status.className = "px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold";
+                display.classList.add('timer-active');
+                btn.innerText = 'Pause';
+                timerInterval = setInterval(() => {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    if (timerSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        alert("Waktu belajar selesai! Istirahat sebentar yuk.");
+                        resetTimer();
+                    }
+                }, 1000);
+            }
+            isTimerRunning = !isTimerRunning;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerSeconds = 25 * 60;
+            updateTimerDisplay();
+            document.getElementById('btn-timer').innerText = 'Mulai';
+            document.getElementById('timer-status').innerText = 'READY';
+            document.getElementById('timer-status').className = "px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-[10px] font-bold";
+            document.getElementById('timer-display').classList.remove('timer-active');
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timer-display').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // --- Task Functions ---
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            list.innerHTML = tasks.map(t => `
+                <li class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 group">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})" 
+                            class="w-5 h-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="${t.done ? 'line-through text-slate-400' : 'text-slate-700'} text-sm font-medium">${t.text}</span>
+                    </div>
+                    <button onclick="deleteTask(${t.id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </li>
+            `).join('');
+            saveTasks();
+        }
+
+        function addTask() {
+            const input = document.getElementById('task-input');
+            if (!input.value.trim()) return;
+            tasks.push({ id: Date.now(), text: input.value, done: false });
+            input.value = '';
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+            if (tasks.find(t => t.id === id).done) showToast();
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('siswa9_tasks', JSON.stringify(tasks));
+        }
+
+        // --- Curriculum Functions ---
+        function renderCurriculum() {
+            const container = document.getElementById('curriculum-container');
+            container.innerHTML = curriculum.map(item => `
+                <label class="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-300 transition-all">
+                    <input type="checkbox" onchange="updateProgress()" class="topic-check w-4 h-4 text-indigo-600 rounded">
+                    <div>
+                        <p class="text-[10px] font-bold text-indigo-500 uppercase">${item.subject}</p>
+                        <p class="text-xs font-semibold text-slate-700">${item.topic}</p>
+                    </div>
+                </label>
+            `).join('');
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.topic-check');
+            const checked = Array.from(checkboxes).filter(c => c.checked).length;
+            const total = checkboxes.length;
+            const percent = total === 0 ? 0 : Math.round((checked / total) * 100);
+            
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('total-progress-percent').innerText = percent + '%';
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+    </script>
+</body>
+</html>
+
+```
